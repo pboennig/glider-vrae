@@ -14,7 +14,7 @@ parser.add_argument('file', type=argparse.FileType('r'))
 args = parser.parse_args()
 
 
-df = pd.read_csv(args.file)[1:]
+df = pd.read_csv(args.file)[1:].drop_duplicates(subset=['longitude','latitude'])
 lon = pd.to_numeric(df["longitude"])
 lat = pd.to_numeric(df["latitude"])
 ax = plt.axes(projection=ccrs.PlateCarree())
@@ -22,5 +22,5 @@ ax.set_extent([min(lon)-kBounding, max(lon)+kBounding, min(lat)-kBounding, max(l
 ax.coastlines(resolution='10m')
 ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
 
-plt.plot(pd.to_numeric(df["precise_lon"]), pd.to_numeric(df["precise_lat"]))
+plt.plot(lon, lat)
 plt.show()
