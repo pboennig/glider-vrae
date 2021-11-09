@@ -1,0 +1,3 @@
+[submodule "timeseries-clustering-vae"]
+	path = timeseries-clustering-vae
+	url = https://github.com/tejaslodaya/timeseries-clustering-vae
