@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 kModelFile = 'vrae.pt'
-kDataFile = 'data/processed/x.pt'
+kDataFile = 'data/processed/x_without_artifact.pt'
 
 X = torch.load(kDataFile)
 # Hyperparameters

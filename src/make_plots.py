@@ -3,11 +3,10 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import numpy as np
 
-kDataFile = '../data/processed/x.pt'
+kDataFile = '../data/processed/x_without_artifact.pt'
 kEmbeddingsFile = '../data/pca_z.npy'
 kBounding = .25 # how much to bound around trajectory
-X = torch.load(kDataFile)
-A = np.delete(X.numpy(), 60, axis=0) # the 60th trajectory is junk data
+A = torch.load(kDataFile).numpy()
 z_embedded = np.load(kEmbeddingsFile)
 
 def plot_trajectories(A):
@@ -26,6 +25,8 @@ def plot_trajectories(A):
     for i in range(A.shape[0]):
         plt.plot(A[i,:,1], A[i,:,0])
     plt.title("Trajectory dataset")
+    plt.savefig('../plots/traj_map.png')
+    plt.clf()
 
 def trajectory_grid(A):
     assert(A.shape[0] == 72)
@@ -40,6 +41,7 @@ def trajectory_grid(A):
             axs[i,j].set_yticks([])
     plt.savefig("../plots/traj_grid.png")
     plt.clf()
+    fig.set_size_inches(8, 6)
 
 
 def plot_z(z_embedded):
@@ -77,8 +79,8 @@ def plot_traj_highlight_i(A, i=49):
     plt.savefig("../plots/vrae_traj_49_highlighted.png")
     plt.clf()
 
-#plot_trajectories(A) 
-#trajectory_grid(A)
+plot_trajectories(A) 
+trajectory_grid(A)
 plot_z(z_embedded)
 plot_z_highlight_i(z_embedded)
 plot_traj_highlight_i(A)

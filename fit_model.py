@@ -3,7 +3,7 @@ from timeseries_clustering_vae.vrae.vrae import VRAE
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 
-kDataFile = 'data/processed/x.pt'
+kDataFile = 'data/processed/x_without_artifact.pt'
 kModelFile = 'vrae.pt'
 
 # Hyperparameters
