@@ -3,6 +3,7 @@ from timeseries_clustering_vae.vrae.vrae import VRAE
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+import numpy as np
 
 kModelFile = 'vrae.pt'
 kDataFile = 'data/processed/x.pt'
@@ -53,8 +54,4 @@ z = vrae.transform(TensorDataset(X))
 pca = PCA(n_components=2)
 
 z_embedded = pca.fit_transform(z)
-plt.scatter(x=z_embedded[:,0], y=z_embedded[:,1])
-plt.title("VRAE latent embeddings in PCA space")
-plt.xlabel("PC 1")
-plt.ylabel("PC 2")
-plt.savefig("plots/vrae_pca.png")
+np.save("data/pca_z.npy", z_embedded)
