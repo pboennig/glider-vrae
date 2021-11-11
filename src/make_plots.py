@@ -24,8 +24,7 @@ def plot_trajectories(A):
 
     for i in range(A.shape[0]):
         plt.plot(A[i,:,1], A[i,:,0])
-    plt.title("Trajectory dataset")
-    plt.savefig('../plots/traj_map.png')
+    plt.savefig('../plots/traj_map.png', dpi=200)
     plt.clf()
 
 def trajectory_grid(A):
@@ -53,12 +52,11 @@ def plot_z(z_embedded):
     plt.clf()
 
 def plot_z_highlight_i(z_embedded, i=49):
-    plt.title("Outlier in PCA space")
     plt.scatter(x=z_embedded[:,0], y=z_embedded[:,1], marker='o', color='grey')
-    plt.scatter(x=z_embedded[i,0], y=z_embedded[i,1], marker='*', color='red')
+    plt.scatter(x=z_embedded[i,0], y=z_embedded[i,1], marker='o', color='red')
     plt.xlabel("PC 1")
     plt.ylabel("PC 2")
-    plt.savefig("../plots/vrae_pca_49_highlighted.png")
+    plt.savefig("../plots/vrae_pca_49_highlighted.png", dpi=200)
     plt.clf()
 
 def plot_traj_highlight_i(A, i=49):
@@ -75,8 +73,7 @@ def plot_traj_highlight_i(A, i=49):
             plt.plot(A[j,:,1], A[j,:,0], color='grey')
     
     plt.plot(A[i,:,1], A[i,:,0], color='red')
-    plt.title("Trajectory outlier")
-    plt.savefig("../plots/vrae_traj_49_highlighted.png")
+    plt.savefig("../plots/vrae_traj_49_highlighted.png", dpi=200)
     plt.clf()
 
 plot_trajectories(A) 
