@@ -2,12 +2,18 @@ import torch
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import numpy as np
+from matplotlib import cm
+from matplotlib import colors
 
 kDataFile = '../data/processed/x_without_artifact.pt'
 kEmbeddingsFile = '../data/pca_z.npy'
+kGenSeqFile = '../data/variation_of_dims.npy'
+kRandomSeqFile = '../data/random_sequences.npy'
 kBounding = .25 # how much to bound around trajectory
 A = torch.load(kDataFile).numpy()
 z_embedded = np.load(kEmbeddingsFile)
+gen_seq = np.load(kGenSeqFile)
+rand_seq = np.load(kRandomSeqFile)
 
 def plot_trajectories(A):
     """
@@ -76,8 +82,56 @@ def plot_traj_highlight_i(A, i=49):
     plt.savefig("../plots/vrae_traj_49_highlighted.png", dpi=200)
     plt.clf()
 
+def plot_traj(X):
+    for j in range(X.shape[0]):
+        A = X[j]
+        lon = A[:,:,0]
+        lat = A[:,:,1]
+
+        ax = plt.axes(projection=ccrs.PlateCarree())
+        ax.set_extent([np.min(lat)-kBounding, np.max(lat)+kBounding, np.min(lon)-kBounding, np.max(lon)+kBounding], crs=ccrs.PlateCarree())
+        ax.coastlines(resolution='10m')
+        ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
+        values = np.linspace(-5, 5, num=10)
+
+        norm = colors.Normalize(vmin=np.min(values), vmax=np.max(values))
+        c_m = cm.cool
+
+        # create a ScalarMappable and initialize a data structure
+        s_m = cm.ScalarMappable(cmap=c_m, norm=norm)
+        s_m.set_array([])
+
+        for i in range(A.shape[0]):
+            plt.plot(A[i,:,1], A[i,:,0], color=s_m.to_rgba(values[i]))
+        plt.colorbar(s_m)
+        plt.title(f'Variation in dimension {j}')
+        plt.savefig(f'../plots/var_dim/{j}.png', dpi=200)
+        plt.clf()
+
+def plot_random_vecs(A):
+    lon = A[:,:,0]
+    lat = A[:,:,1]
+
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.set_extent([np.min(lat)-kBounding, np.max(lat)+kBounding, np.min(lon)-kBounding, np.max(lon)+kBounding], crs=ccrs.PlateCarree())
+    ax.coastlines(resolution='10m')
+    ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
+
+    for i in range(A.shape[0]):
+        plt.plot(A[i,:,1], A[i,:,0])
+    
+    plt.title(f'{A.shape[0]} randomly generated trajectories')
+    plt.savefig(f'../plots/ensemble.png', dpi=200)
+    plt.clf()
+
+
+
+'''
 plot_trajectories(A) 
 trajectory_grid(A)
 plot_z(z_embedded)
 plot_z_highlight_i(z_embedded)
 plot_traj_highlight_i(A)
+'''
+#plot_traj(gen_seq)
+plot_random_vecs(rand_seq)
