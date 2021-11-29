@@ -6,11 +6,11 @@ from timeseries_clustering_vae.vrae.vrae import VRAE
 import numpy as np
 from constants import *
 
-kDataFile = 'data/processed/x_without_artifact.pt'
-
 batch_size = 10 # so that we get embeddings for all datapoints
 
 X = torch.load(kDataFile)
+observed_Z = np.load(kRawEmbeddingsFile) # fit on the 72 input sequences
+
 num_sequences, sequence_length, number_of_features = X.shape
 dload = './model_dir' # where to store downloads
 vrae = VRAE(sequence_length=sequence_length,
@@ -40,11 +40,12 @@ for j in range(latent_length):
 output = output.swapaxes(1, 2)
 np.save(kGenSeqFile, output.detach().numpy())
 
+# empirical mean and stdevs to generate sequences from
+obs_mean_Z = torch.Tensor(observed_Z.mean(axis=0, keepdims=True))
+obs_std_Z = torch.Tensor(observed_Z.std(axis=0, keepdims=True))
 
 shape = (batch_size, latent_length)
-start = torch.normal(mean=torch.zeros(*shape), std=torch.ones(*shape))
-normalized = start / start.norm()
-gen = vrae.decoder(normalized)
+start = torch.normal(mean=obs_mean_Z.repeat(batch_size, 1), std=obs_std_Z.repeat(batch_size, 1))
+gen = vrae.decoder(start)
 gen = gen.swapaxes(0, 1)
 np.save(kRandomSeqFile, gen.detach().numpy())
-

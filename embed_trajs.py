@@ -38,8 +38,9 @@ vrae = VRAE(sequence_length=sequence_length,
 
 vrae.load(f'model_dir/{kModelFile}')
 z = vrae.transform(TensorDataset(X))
-print(z)
+np.save(kRawEmbeddingsFile, z)
+
 pca = PCA(n_components=2)
 
 z_embedded = pca.fit_transform(z)
-np.save("data/pca_z.npy", z_embedded)
+np.save(kEmbeddingsFile, z_embedded)

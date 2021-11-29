@@ -124,3 +124,10 @@ def plot_traj_variation(X, dir, values):
         plt.title(f'Variation in dimension {j}')
         plt.savefig(f'{dir}/{j}.png', dpi=200)
         plt.clf()
+
+def box_embed(Z, dir):
+    for j in range(Z.shape[1]):
+        plt.title(f'Values of dimension {j}')
+        plt.boxplot(Z[:,j])
+        plt.savefig(f'{dir}/{j}.png', dpi=200)
+        plt.clf()
