@@ -32,8 +32,8 @@ vrae = VRAE(sequence_length=sequence_length,
             block = block,
             dload = dload)
 vrae.load(f'model_dir/{kModelFile}')
+print("Observed z decoded:", vrae.decoder(torch.tensor(observed_Z)[:10]))
 
-'''
 output = torch.zeros(latent_length, sequence_length, batch_size, 2)
 z = torch.zeros(latent_length, batch_size, latent_length)
 for j in range(latent_length):
@@ -41,7 +41,6 @@ for j in range(latent_length):
     output[j] = vrae.decoder(z[j])
 output = output.swapaxes(1, 2)
 np.save(kGenSeqFile, output.detach().numpy())
-'''
 
 # empirical mean and stdevs to generate sequences from
 obs_mean_Z = torch.Tensor(observed_Z.mean(axis=0, keepdims=True))
