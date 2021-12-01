@@ -2,6 +2,7 @@
 Vary over each dimension and generate samples, showing what each latent dimension represents.
 '''
 import torch
+from torch.utils.data.dataset import TensorDataset
 from timeseries_clustering_vae.vrae.vrae import VRAE
 import numpy as np
 from constants import *
@@ -32,6 +33,7 @@ vrae = VRAE(sequence_length=sequence_length,
             dload = dload)
 vrae.load(f'model_dir/{kModelFile}')
 
+'''
 output = torch.zeros(latent_length, sequence_length, batch_size, 2)
 z = torch.zeros(latent_length, batch_size, latent_length)
 for j in range(latent_length):
@@ -39,13 +41,25 @@ for j in range(latent_length):
     output[j] = vrae.decoder(z[j])
 output = output.swapaxes(1, 2)
 np.save(kGenSeqFile, output.detach().numpy())
+'''
 
 # empirical mean and stdevs to generate sequences from
 obs_mean_Z = torch.Tensor(observed_Z.mean(axis=0, keepdims=True))
 obs_std_Z = torch.Tensor(observed_Z.std(axis=0, keepdims=True))
 
+# generate batch_size sequences drawn from normal fit on embeddings
+'''
 shape = (batch_size, latent_length)
-start = torch.normal(mean=obs_mean_Z.repeat(batch_size, 1), std=obs_std_Z.repeat(batch_size, 1))
+mean = vrae.lmbd.latent_mean.repeat(batch_size, 1)
+std = vrae.lmbd.latent_logvar.repeat(batch_size, 1).exp().sqrt()
+print(mean, std)
+start = torch.normal(mean=mean, std=std)
 gen = vrae.decoder(start)
 gen = gen.swapaxes(0, 1)
 np.save(kRandomSeqFile, gen.detach().numpy())
+'''
+
+X = torch.load(kDataFile)
+gen = vrae.reconstruct(TensorDataset(X))
+print(gen)
+np.save(kReconstructedSeqFile, gen)
