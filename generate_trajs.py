@@ -3,6 +3,7 @@ Vary over each dimension and generate samples, showing what each latent dimensio
 '''
 import torch
 from torch.utils.data.dataset import TensorDataset
+import scale_data
 from timeseries_clustering_vae.vrae.vrae import VRAE
 import numpy as np
 from constants import *
@@ -42,7 +43,7 @@ def variation_sweep():
         z[j,:,j] = torch.linspace(mu[j] - kVariationSweep, mu[j] + kVariationSweep, batch_size)
         output[j] = vrae.decoder(z[j])
     output = output.swapaxes(1, 2)
-    np.save(kGenSeqFile, output.detach().numpy())
+    np.save(kGenSeqFile, scale_data.unscale_data(output.detach().numpy()))
 
 # empirical mean and stdevs to generate sequences from
 def sample():
@@ -52,15 +53,15 @@ def sample():
 
     start = torch.normal(mean=obs_mean_Z, std=obs_std_Z).swapaxes(0, 1)
     gen = vrae.decoder(start)
-    print(gen.shape)
     gen = gen.swapaxes(0, 1)
-    np.save(kRandomSeqFile, gen.detach().numpy())
+    np.save(kRandomSeqFile, scale_data.unscale_data(gen.detach().numpy()))
 
 def recon():
-    X = torch.load(kDataFile)
-    gen = vrae.reconstruct(TensorDataset(X))
+    X = scale_data.scale_data(torch.load(kDataFile))
+    gen = vrae.reconstruct(TensorDataset(X)).swapaxes(0,1)
     print(gen)
-    np.save(kReconstructedSeqFile, gen)
+    np.save(kReconstructedSeqFile, scale_data.unscale_data(gen))
 
-sample()
+#sample()
 #variation_sweep()
+recon()
