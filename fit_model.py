@@ -4,6 +4,7 @@ Load processed data, fit vrae, and save output.
 # Follows https://github.com/tejaslodaya/timeseries-clustering-vae/blob/7454fb68662680473fc242014dec7a291b7a4c7a/Timeseries_clustering.ipynb
 from timeseries_clustering_vae.vrae.vrae import VRAE
 import torch
+import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
 from constants import *
 
@@ -32,5 +33,6 @@ vrae = VRAE(sequence_length=sequence_length,
             block = block,
             dload = dload)
 
-vrae.fit(TensorDataset(X))
+training_traj = vrae.fit(TensorDataset(X))
+np.save(kTrainingTraj, np.array(training_traj))
 vrae.save(kModelFile)
