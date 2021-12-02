@@ -32,34 +32,35 @@ vrae = VRAE(sequence_length=sequence_length,
             block = block,
             dload = dload)
 vrae.load(f'model_dir/{kModelFile}')
-print("Observed z decoded:", vrae.decoder(torch.tensor(observed_Z)[:10]))
 
-output = torch.zeros(latent_length, sequence_length, batch_size, 2)
-z = torch.zeros(latent_length, batch_size, latent_length)
-for j in range(latent_length):
-    z[j,:,j] = torch.linspace(-5, 5, batch_size)
-    output[j] = vrae.decoder(z[j])
-output = output.swapaxes(1, 2)
-np.save(kGenSeqFile, output.detach().numpy())
+def variation_sweep():
+    output = torch.zeros(latent_length, sequence_length, batch_size, 2)
+    obs_mean_Z = torch.Tensor(observed_Z.mean(axis=0))
+    mu = obs_mean_Z.detach().numpy()
+    z = obs_mean_Z.unsqueeze(1).unsqueeze(2).expand(-1, batch_size, latent_length).clone()
+    for j in range(latent_length):
+        z[j,:,j] = torch.linspace(mu[j] - kVariationSweep, mu[j] + kVariationSweep, batch_size)
+        output[j] = vrae.decoder(z[j])
+    output = output.swapaxes(1, 2)
+    np.save(kGenSeqFile, output.detach().numpy())
 
 # empirical mean and stdevs to generate sequences from
-obs_mean_Z = torch.Tensor(observed_Z.mean(axis=0, keepdims=True))
-obs_std_Z = torch.Tensor(observed_Z.std(axis=0, keepdims=True))
-print(obs_std_Z)
+def sample():
+    obs_mean_Z = torch.Tensor(observed_Z.mean(axis=0)).unsqueeze(1).repeat(1, batch_size)
+    obs_std_Z = torch.Tensor(observed_Z.std(axis=0)).unsqueeze(1).repeat(1, batch_size)
+    obs_std_Z = 5 * torch.ones((latent_length, batch_size))
 
-# generate batch_size sequences drawn from normal fit on embeddings
-'''
-shape = (batch_size, latent_length)
-mean = vrae.lmbd.latent_mean.repeat(batch_size, 1)
-std = vrae.lmbd.latent_logvar.repeat(batch_size, 1).exp().sqrt()
-print(mean, std)
-start = torch.normal(mean=mean, std=std)
-gen = vrae.decoder(start)
-gen = gen.swapaxes(0, 1)
-np.save(kRandomSeqFile, gen.detach().numpy())
-'''
+    start = torch.normal(mean=obs_mean_Z, std=obs_std_Z).swapaxes(0, 1)
+    gen = vrae.decoder(start)
+    print(gen.shape)
+    gen = gen.swapaxes(0, 1)
+    np.save(kRandomSeqFile, gen.detach().numpy())
 
-X = torch.load(kDataFile)
-gen = vrae.reconstruct(TensorDataset(X))
-print(gen)
-np.save(kReconstructedSeqFile, gen)
+def recon():
+    X = torch.load(kDataFile)
+    gen = vrae.reconstruct(TensorDataset(X))
+    print(gen)
+    np.save(kReconstructedSeqFile, gen)
+
+sample()
+#variation_sweep()

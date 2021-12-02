@@ -67,7 +67,7 @@ def plot_z_highlight_i(z_embedded, fn, i=49):
     """
     Highlight one z in PCA scatter plot.
     """
-    print("plotting pca scatter with highlight...", end="")
+    print(f"plotting pca scatter with highlight i = {i}...", end="")
     plt.scatter(x=z_embedded[:,0], y=z_embedded[:,1], marker='o', color='grey')
     plt.scatter(x=z_embedded[i,0], y=z_embedded[i,1], marker='o', color='red')
     plt.xlabel("PC 1")
@@ -80,7 +80,7 @@ def plot_traj_highlight_i(A, fn, i=49):
     """
     Plot all trajectories on map and highlight i.
     """
-    print("plotting trajectories with highlight...", end="")
+    print(f"plotting trajectories with highlight i ={i}...", end="")
     lon = A[:,:,0]
     lat = A[:,:,1]
 
@@ -98,7 +98,7 @@ def plot_traj_highlight_i(A, fn, i=49):
     plt.clf()
     print("done!")
 
-def plot_traj_variation(X, dir, values):
+def plot_traj_variation(X, dir, raw_z):
     """
     X: (latent_dim, num_seq, seq_length)
     values: the different values of each latent_dim, typically a linspace array.
@@ -106,6 +106,7 @@ def plot_traj_variation(X, dir, values):
     For each latent_dim, create a plot showing how varying that latent variable changes the generated sequence, coloring by the value.
     """
     print("plotting variation over latent dims...",end="")
+    vals = raw_z.mean(axis=0)
     for j in range(X.shape[0]):
         A = X[j]
         lon = A[:,:,0]
@@ -116,6 +117,7 @@ def plot_traj_variation(X, dir, values):
         ax.coastlines(resolution='10m')
         ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
 
+        values = np.linspace(vals[j] - kVariationSweep, vals[j] + kVariationSweep, 10)
         norm = colors.Normalize(vmin=np.min(values), vmax=np.max(values))
         c_m = cm.cool
 
