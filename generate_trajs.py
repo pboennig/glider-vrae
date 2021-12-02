@@ -45,6 +45,7 @@ np.save(kGenSeqFile, output.detach().numpy())
 # empirical mean and stdevs to generate sequences from
 obs_mean_Z = torch.Tensor(observed_Z.mean(axis=0, keepdims=True))
 obs_std_Z = torch.Tensor(observed_Z.std(axis=0, keepdims=True))
+print(obs_std_Z)
 
 # generate batch_size sequences drawn from normal fit on embeddings
 '''

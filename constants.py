@@ -1,14 +1,14 @@
 # Hyperparameters
-hidden_size = 200
+hidden_size = 10
 hidden_layer_depth = 4
-latent_length = 50
+latent_length = 5
 batch_size = 32
 learning_rate = 0.01
-n_epochs = 20
+n_epochs = 500
 dropout_rate = 0.2
 optimizer = 'Adam' # options: ADAM, SGD
 cuda = True # options: True, False
-print_every=30
+print_every=1
 clip = True # options: True, False
 max_grad_norm=5
 loss = 'SmoothL1Loss' # options: SmoothL1Loss, MSELoss
