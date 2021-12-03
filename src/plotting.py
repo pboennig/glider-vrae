@@ -10,7 +10,7 @@ def plot_trajectories(A, fn, title = None):
     Plot trajectories on one map.
     traj_array: (num_traj, len_traj, 2), assume that 2nd dimension is (lon, lat)
     """
-    print("plotting trajectory map...")
+    print(f"plotting trajectory map for {fn}...", end="")
     lon = A[:,:,0]
     lat = A[:,:,1]
 
@@ -27,12 +27,13 @@ def plot_trajectories(A, fn, title = None):
         plt.plot(A[i,:,1], A[i,:,0])
     plt.savefig(fn, dpi=200)
     plt.clf()
+    print("done!")
 
 def trajectory_grid(A, fn):
     """
     Plot all 72 trajectories in a grid to show different shapes. The map is not drawn to make it cleaner.
     """
-    print("plotting traj grid...")
+    print("plotting traj grid...", end="")
     assert(A.shape[0] == 72)
     fig, axs = plt.subplots(8, 9)
     fig.set_size_inches(18.5, 10.5)
@@ -46,37 +47,40 @@ def trajectory_grid(A, fn):
     plt.savefig(fn)
     plt.clf()
     fig.set_size_inches(8, 6)
+    print("done!")
 
 
 def plot_z(z_embedded, fn):
     """
     Given the 2-D PCA latent space embeddings, plot a scatter plot.
     """
-    print("plotting pca scatter...")
+    print("plotting pca scatter...", end="")
     plt.scatter(x=z_embedded[:,0], y=z_embedded[:,1])
     plt.title("VRAE latent embeddings in PCA space")
     plt.xlabel("PC 1")
     plt.ylabel("PC 2")
     plt.savefig(fn)
     plt.clf()
+    print("done!")
 
 def plot_z_highlight_i(z_embedded, fn, i=49):
     """
     Highlight one z in PCA scatter plot.
     """
-    print("plotting pca scatter with highlight...")
+    print(f"plotting pca scatter with highlight i = {i}...", end="")
     plt.scatter(x=z_embedded[:,0], y=z_embedded[:,1], marker='o', color='grey')
     plt.scatter(x=z_embedded[i,0], y=z_embedded[i,1], marker='o', color='red')
     plt.xlabel("PC 1")
     plt.ylabel("PC 2")
     plt.savefig(fn, dpi=200)
     plt.clf()
+    print("done!")
 
 def plot_traj_highlight_i(A, fn, i=49):
     """
     Plot all trajectories on map and highlight i.
     """
-    print("plotting trajectories with highlight...")
+    print(f"plotting trajectories with highlight i ={i}...", end="")
     lon = A[:,:,0]
     lat = A[:,:,1]
 
@@ -92,15 +96,17 @@ def plot_traj_highlight_i(A, fn, i=49):
     plt.plot(A[i,:,1], A[i,:,0], color='red')
     plt.savefig(fn, dpi=200)
     plt.clf()
+    print("done!")
 
-def plot_traj_variation(X, dir, values):
+def plot_traj_variation(X, dir, raw_z):
     """
     X: (latent_dim, num_seq, seq_length)
     values: the different values of each latent_dim, typically a linspace array.
 
     For each latent_dim, create a plot showing how varying that latent variable changes the generated sequence, coloring by the value.
     """
-    print("plotting variation over latent dims...")
+    print("plotting variation over latent dims...",end="")
+    vals = raw_z.mean(axis=0)
     for j in range(X.shape[0]):
         A = X[j]
         lon = A[:,:,0]
@@ -111,6 +117,7 @@ def plot_traj_variation(X, dir, values):
         ax.coastlines(resolution='10m')
         ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
 
+        values = np.linspace(vals[j] - kVariationSweep, vals[j] + kVariationSweep, 10)
         norm = colors.Normalize(vmin=np.min(values), vmax=np.max(values))
         c_m = cm.cool
 
@@ -124,6 +131,7 @@ def plot_traj_variation(X, dir, values):
         plt.title(f'Variation in dimension {j}')
         plt.savefig(f'{dir}/{j}.png', dpi=200)
         plt.clf()
+    print("done!")
 
 def box_embed(Z, dir):
     for j in range(Z.shape[1]):
@@ -131,3 +139,24 @@ def box_embed(Z, dir):
         plt.boxplot(Z[:,j])
         plt.savefig(f'{dir}/{j}.png', dpi=200)
         plt.clf()
+
+def plot_training_traj(traj, fname, recon_color='xkcd:coral', kl_color='xkcd:olive'):
+    print("Plotting loss versus epoch...", end="")
+    recon = traj[:,0]
+    kl = traj[:,1]
+    x = np.arange(1, kl.shape[0]+1, 10)
+    fig, ax1 = plt.subplots()
+    ax1.set_ylabel('reconstruction loss', color=recon_color)
+    ax1.set_yscale('log')
+    ax1.set_xlabel('epoch')
+    ax1.plot(recon, color=recon_color)
+    ax1.tick_params(axis='y', labelcolor=recon_color)
+    
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('KL divergence', color=kl_color)
+    ax2.plot(kl, color=kl_color)
+    ax2.tick_params(axis='y', labelcolor=kl_color)
+
+    plt.savefig(fname, dpi=200)
+    plt.clf()
+    print("done!")
