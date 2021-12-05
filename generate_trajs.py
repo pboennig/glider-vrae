@@ -11,6 +11,7 @@ from constants import *
 batch_size = 10 # so that we get embeddings for all datapoints
 
 X = torch.load(kDataFile)
+X = X[:,::10]
 observed_Z = np.load(kRawEmbeddingsFile) # fit on the 72 input sequences
 
 num_sequences, sequence_length, number_of_features = X.shape
@@ -59,8 +60,7 @@ def sample():
 def recon():
     X = scale_data.scale_data(torch.load(kDataFile))
     gen = vrae.reconstruct(TensorDataset(X)).swapaxes(0,1)
-    print(gen)
-    np.save(kReconstructedSeqFile, scale_data.unscale_data(gen))
+    np.save(kReconstructedSeqFile, np.repeat(scale_data.unscale_data(gen), 10, axis=1))
 
 #sample()
 #variation_sweep()

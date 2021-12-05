@@ -14,6 +14,4 @@ X = torch.load(kRawDataFile)
 new_X = torch.empty(X.shape[0] - 1, *X.shape[1:])
 new_X[:kProblematicIndex] = X[:kProblematicIndex]
 new_X[kProblematicIndex:] = X[kProblematicIndex+1:]
-x_split = torch.split(new_X, 10, dim=1)
-x_split = torch.cat(x_split, dim=0)
-torch.save(new_X[:,::10], kDataFile)
+torch.save(new_X, kDataFile)

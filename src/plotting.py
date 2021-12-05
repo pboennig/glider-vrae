@@ -29,6 +29,27 @@ def plot_trajectories(A, fn, title = None):
     plt.clf()
     print("done!")
 
+
+def plot_comparison(A, fn):
+    print(A.shape)
+    print(f"plotting orig/autoreg/vrae comp for {fn}...", end="")
+    lon = A[:2,:,0]
+    lat = A[:2,:,1]
+
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.set_extent([np.min(lat)-kBounding, np.max(lat)+kBounding, np.min(lon)-kBounding, np.max(lon)+kBounding], crs=ccrs.PlateCarree())
+    ax.coastlines(resolution='10m')
+    ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
+    
+    plt.plot(A[0,:,1], A[0,:,0], color='r', label='original')
+    plt.plot(A[1,:,1], A[1,:,0], color='b', label='autoregressive')
+    plt.title("Autoregressive model gives reasonable sample...")
+    plt.legend(loc="upper left")
+    plt.savefig(fn, dpi=200)
+    print("done!")
+    plt.clf()
+
+
 def trajectory_grid(A, fn):
     """
     Plot all 72 trajectories in a grid to show different shapes. The map is not drawn to make it cleaner.
