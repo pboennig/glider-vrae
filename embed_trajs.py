@@ -4,16 +4,17 @@ Load model, embed data into latent z space, and save 2-D representation after PC
 import torch
 from timeseries_clustering_vae.vrae.vrae import VRAE
 from torch.utils.data import DataLoader, TensorDataset
+from sklearn  import preprocessing
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import numpy as np
 from constants import *
+import scale_data
 
 X = torch.load(kDataFile)
 batch_size = X.shape[0] # so that we get embeddings for all datapoints, overwrite constant in constants.py
 
 # load data
-X = torch.load(kDataFile)
 num_sequences, sequence_length, number_of_features = X.shape
 
 # Initialize model
@@ -37,10 +38,10 @@ vrae = VRAE(sequence_length=sequence_length,
             dload = dload)
 
 vrae.load(f'model_dir/{kModelFile}')
-z = vrae.transform(TensorDataset(X))
+z = vrae.transform(TensorDataset(scale_data.scale_data(X)))
 np.save(kRawEmbeddingsFile, z)
 
 pca = PCA(n_components=2)
-
 z_embedded = pca.fit_transform(z)
+print(z_embedded)
 np.save(kEmbeddingsFile, z_embedded)

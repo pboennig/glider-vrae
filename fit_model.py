@@ -7,10 +7,12 @@ import torch
 import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
 from constants import *
+import scale_data
 
 
 # load data
-X = torch.load(kDataFile)
+X = scale_data.scale_data(torch.load(kDataFile))
+X = X[:,::10]
 num_sequences, sequence_length, number_of_features = X.shape
 
 # Initialize model
@@ -32,7 +34,7 @@ vrae = VRAE(sequence_length=sequence_length,
             loss = loss,
             block = block,
             dload = dload)
-
 training_traj = vrae.fit(TensorDataset(X))
+print(training_traj)
 np.save(kTrainingTraj, np.array(training_traj))
 vrae.save(kModelFile)
