@@ -13,6 +13,7 @@ def plot_trajectories(A, fn, title = None):
     print(f"plotting trajectory map for {fn}...", end="")
     lon = A[:,:,0]
     lat = A[:,:,1]
+    print(lat.std(axis=1).mean(), lon.std(axis=1).mean())
 
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.set_extent([np.min(lat)-kBounding, np.max(lat)+kBounding, np.min(lon)-kBounding, np.max(lon)+kBounding], crs=ccrs.PlateCarree())
@@ -43,9 +44,9 @@ def plot_comparison(A, fn):
     
     plt.plot(A[0,:,1], A[0,:,0], color='r', label='original')
     plt.plot(A[1,:,1], A[1,:,0], color='b', label='autoregressive')
-    plt.title("Autoregressive model gives reasonable sample...")
+    plt.title("Autoregressive vs. ground truth trajectory")
     plt.legend(loc="upper left")
-    plt.savefig(fn, dpi=200)
+    plt.savefig(fn, dpi=400)
     print("done!")
     plt.clf()
 
